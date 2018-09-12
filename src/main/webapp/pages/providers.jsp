@@ -1,3 +1,5 @@
+<%@ page language="java" pageEncoding="utf-8" isELIgnored="false"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html> 
 <html lang="en"> 
 <head> 
@@ -26,14 +28,7 @@
                 pageSize:10">
             <thead>
                 <tr>
-                    <th field="code" width="110">供应商编码</th>
-                    <th field="name" width="226">供应商名称</th>
-                    <th field="level" width="112">等级</th>
-                    <th field="provide" width="170">主供品类</th>
-                    <th field="full" width="130">资料是否完善</th>
-                    <th field="issubmit" width="136">调查表格是否提交</th>
-                    <th field="status" width="120">审核状态</th>
-                    <th field="note" width="105">备注</th>
+                    
                 </tr>
             </thead>
         </table>
@@ -48,11 +43,6 @@
     <script type="text/javascript" src="../custom/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="../custom/easyui-lang-zh_CN.js"></script>
 
-
-    
-  
-
-    
     <script type="text/javascript">
             (function($){
             function pagerFilter(data){
@@ -155,26 +145,69 @@
             })
         })(jQuery);
 
-        function getData(){
-            var rows = [];
-            for(var i=1; i<=800; i++){
-                rows.push({
-                    code: '10695',
-                    name: '南京天泽星网股份有限公司',
-                    level: '正式',
-                    provide: '光纤通信设备配件',
-                    full: '√',
-                    issubmit: '√',
-                    status:'已审核',
-                    note: '-'
+            $(function(){
+            	$('#dg').datagrid({  
+            	    border:false,  
+            	    fitColumns:true,  
+            	    singleSelect: true,  
+            	    url:"../Type/index_json",  
+            	    columns:[[  
+            	        {field:'id',title:'ID',width:30},  
+            	        {field:'name',title:'名称',width:85} ,
+            	        {field:'info',title:'类型',width:50,formatter: function(value,row,index){
+            	        	return value.name;
+            	        }
+            	       },
+            	        {field:'operate',title:'操作',align:'center',width:$(this).width()*0.1, 
+            	        	  formatter:function(val, row, index){ 
+            	        	    var str = '<a href="javascript:;" onclick="del('+index+');"  class="easyui-linkbutton" >删除</a>|<a href="javascript:;" onclick="editwin('+index+');"  class="easyui-linkbutton" >修改</a>'; 
+            	        	    return str; 
+            	        	}} 
+            	    ]]  
+            	});  
+            });    
+            
+            function del(index) {
+            	var row1 = $('#dg').datagrid('getData').rows[index];
+            	var id=row1["id"];
+            	$.messager.confirm('Confirm', 'Are you sure to exit this system?', function(r){
+            		if (r){
+            			$.getJSON("../Type/delete_json",{id:id},function(json){
+            				if(json.status>0) {
+            					$('#dg').datagrid('reload');
+            				}
+            			});
+            		}
+            	});
+            	
+            }
+            function openWin(title,url,width,height,ids){
+            	if(!ids)ids="win";
+            	if(!width)width=600;
+            	if(!height)height=400;
+            	
+            	$("body").append($("<div id='"+ids+"' ></div>"));
+            	$('#'+ids).window({
+                    width: width,
+                    height: height,
+                    modal: true,
+                    href: url,
+                    title: title
                 });
             }
-            return rows;
-        }
-        
-        $(function(){
-            $('#dg').datagrid({data:getData()}).datagrid('clientPaging');
-        });        
+
+            function addwin(){
+            	openWin("新增","edit.jsp");
+            }
+            function editwin(index){
+            	var row1 = $('#dg').datagrid('getData').rows[index];
+            	var id=row1["id"];
+            	openWin("修改","edit.jsp?id="+id);
+            }
+            
+            $(".more").click(function(){
+                $(this).closest(".conditions").siblings().toggleClass("hide");
+            });    
     </script>
 </body> 
 </html>
